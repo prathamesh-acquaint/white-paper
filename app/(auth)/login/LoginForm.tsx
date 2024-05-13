@@ -35,20 +35,17 @@ export default function LoginForm() {
   });
 
   const onSubmit: SubmitHandler<LoginUser> = async (data) => {
-    try {
-      const resData = await userLogin(data);
-      if (resData?.message) {
-        router.replace("dashboard");
-        toast({
-          title: "User Login Successful!!",
-        });
-      }
-    } catch (error) {
-      console.log(error, "ERROR");
+    const { success, error } = await userLogin(data);
+    if (success) {
+      router.replace("dashboard");
+      toast({
+        title: success,
+      });
+    } else if (error) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
+        description: error,
       });
     }
   };

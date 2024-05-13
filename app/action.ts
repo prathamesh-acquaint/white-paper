@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
+import { generateToken } from "@/utils";
 
 export async function generateContent() {
   console.log("FormSubmit Done");
@@ -15,26 +16,23 @@ export async function generateContent() {
 
 export async function adminLogin(formData: LoginUser) {
   const { email, password } = formData;
+  console.log("ADMIN LOGIN api called..");
   const user = await db?.user?.findUnique({ where: { email } });
   if (!user) {
     return { error: "Email not found!" };
   }
+
+  // Check the role.
+  const isAdmin = user?.isadmin;
+  if (!isAdmin) {
+    return { error: "Sorry, you are not Admin!" };
+  }
+
   // compare the password
   const isPassMatched = await bcrypt.compare(password, user?.password);
 
   if (isPassMatched) {
-    const accessToken = jwt.sign(
-      {
-        user: {
-          email: user.email,
-          id: user?.id,
-          username: user?.name,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "1h" }
-    );
-    setCookie("token", accessToken);
+    generateToken(user);
     return {
       success: "User logged in successfully!",
     };
@@ -48,6 +46,8 @@ export async function getUsers() {
       email: true,
       name: true,
       id: true,
+      isadmin: true,
+      status: true,
     },
   });
 }
@@ -79,6 +79,7 @@ export async function removeUser(id: string) {
 }
 
 export async function updateUser(user: User) {
+  console.log(user, "user");
   const res = await db?.user?.update({
     where: { id: user.id },
     data: user,
@@ -90,22 +91,22 @@ export async function updateUser(user: User) {
 }
 
 export async function userLogin(formData: LoginUser) {
-  const url = EndPoints?.userLogin;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  });
-  const data = await res.json();
-  if (res?.status === 200) {
-    setCookie("token", "somedummyutilstoken");
-    setCookie("userId", data?.user_id);
-    return data;
-  } else {
-    throw new Error(data?.error);
+  const { email, password } = formData;
+
+  // Check the user is available or not.
+  const currentUser = await db.user?.findUnique({ where: { email } });
+  if (!currentUser) {
+    return { error: "User not found!!" };
   }
+
+  // Match the pasword.
+  const isPassMatched = await bcrypt.compare(password, currentUser?.password);
+  if (!isPassMatched) {
+    return { error: "Invalid Credentials!" };
+  }
+  generateToken(currentUser);
+
+  return { success: "User logged in successfully!" };
 }
 
 export async function logout() {

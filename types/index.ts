@@ -21,6 +21,7 @@ export interface AddUser {
   name: string;
   email: string;
   password: string;
+  isadmin: boolean;
 }
 
 export interface EditUser {
@@ -46,4 +47,6 @@ export interface User {
   name: string;
   email: string;
   id: string;
+  isadmin: boolean;
+  status: string;
 }

@@ -25,10 +25,12 @@ const UserRow = ({ user, onDelete, onEditChange }: PropTypes) => {
           <p className="whitespace-no-wrap">{user?.email}</p>
         </td>
         <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-          <Badge>Admin</Badge>
+          <Badge>{user?.isadmin ? "Admin" : "User"}</Badge>
         </td>
         <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
-          <Badge variant={"outline"}>Active</Badge>
+          <Badge className="capitalize" variant={"outline"}>
+            {user?.status}
+          </Badge>
         </td>
         <td className="border-b border-gray-200 bg-white px-5 py-5 text-sm">
           <ul className="text-sm flex items-center gap-2">

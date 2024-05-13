@@ -6,6 +6,7 @@ import { User } from "@/types";
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AddUserSchema, EditUserSchema } from "@/types/zod";
+import { Switch } from "@/components/ui/switch";
 import {
   Form,
   FormControl,
@@ -16,6 +17,7 @@ import {
 } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { Label } from "./ui/label";
 
 interface PropTypes {
   onChange: (() => void) | ((arg: any) => void);
@@ -26,6 +28,9 @@ interface PropTypes {
 const Modal = ({ onChange, onSuccess, values }: PropTypes) => {
   const form = useForm<AddUser>({
     resolver: zodResolver(values ? EditUserSchema : AddUserSchema),
+    defaultValues: {
+      isadmin: false,
+    },
   });
   const onSubmit: SubmitHandler<AddUser> = (data) => {
     if (values) {
@@ -90,6 +95,25 @@ const Modal = ({ onChange, onSuccess, values }: PropTypes) => {
                 )}
               />
             )}
+            <FormField
+              control={form.control}
+              name="isadmin"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="isAdmin"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                      <Label htmlFor="isAdmin">Is Admin ?</Label>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="space-y-2">
               <Button className="w-full" type="submit">
                 {values ? "Edit" : "Add"}

@@ -53,7 +53,6 @@ const FormStepTwo = ({ onChange, hidden }: PropTypes) => {
       const res = await longFormSubmit(formData);
       console.log(res, "RESponse");
       toast.success("Form Submitted Successfully.");
-      router.push("/success");
       localStorage.setItem("formData", JSON.stringify(newData));
     } catch (error) {
       console.log(error, "Something bad happened.");
